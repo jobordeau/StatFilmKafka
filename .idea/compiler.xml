@@ -11,8 +11,8 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="kafka-clients-solution" target="11" />
-      <module name="kafka-streams-solution.main" target="11" />
-      <module name="kafka-streams-solution.test" target="17" />
+      <module name="kafka-streams-solution.main" target="22" />
+      <module name="kafka-streams-solution.test" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
