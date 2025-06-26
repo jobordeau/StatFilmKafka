@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🎬 Statistiques de Films</title>
+    <style>
+        :root {
+            --bg: #141414;
+            --nav-bg: #1f1f1f;
+            --nav-text: #ccc;
+            --nav-hover: #444;
+            --accent: #e50914;
+            --text-primary: #fff;
+            --text-secondary: #aaa;
+            --card-bg: #2a2a2a;
+            --card-border: #444;
+            --card-hover: #333;
+        }
+        * { box-sizing: border-box; margin:0; padding:0; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* NAVIGATION */
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            background: var(--nav-bg);
+            padding: 12px 24px;
+            gap: 12px;
+        }
+        nav a, nav button {
+            color: var(--nav-text);
+            background: none;
+            border: none;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+            font-size: 1rem;
+        }
+        nav a.active, nav button.active,
+        nav a:hover, nav button:hover {
+            background: var(--nav-hover);
+            color: var(--text-primary);
+        }
+        nav input {
+            width: 80px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            background: #222;
+            color: #eee;
+        }
+
+        /* PAGE TITLE */
+        header.page-title {
+            text-align: center;
+            padding: 24px 16px;
+        }
+        header.page-title h1 {
+            font-size: 2.2rem;
+        }
+
+        /* GRID des cartes */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            padding: 16px;
+            flex: 1;
+        }
+
+        /* CARTE FILM améliorée */
+        .card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: background .2s, border-color .2s, transform .2s;
+            min-height: 240px;
+            cursor: pointer;
+        }
+        .card:hover {
+            background: var(--card-hover);
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+        .card::before {
+            content: '';
+            display: block;
+            background: #1e1e1e url('https://via.placeholder.com/180x100?text=Film') center/cover no-repeat;
+            height: 120px;
+        }
+        .card .info {
+            padding: 12px;
+        }
+        .info .title {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+        .info .meta {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        /* DETAIL d’un film */
+        .detail {
+            max-width: 600px;
+            margin: 16px auto;
+            padding: 16px;
+            background: var(--card-bg);
+            border-radius: 6px;
+            overflow-x: auto;
+            color: var(--text-secondary);
+        }
+        .detail h2 {
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .detail p {
+            margin-bottom: 12px;
+        }
+        .detail pre {
+            background: #111;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            line-height: 1.3;
+        }
+
+        /* ERREUR */
+        #error {
+            padding: 16px;
+            color: #f88;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#/stats/ten/best/score" data-route="/stats/ten/best/score">Best Score</a>
+    <a href="#/stats/ten/best/views" data-route="/stats/ten/best/views">Best Vues</a>
+    <a href="#/stats/ten/worst/score" data-route="/stats/ten/worst/score">Worst Score</a>
+    <a href="#/stats/ten/worst/views" data-route="/stats/ten/worst/views">Worst Vues</a>
+    <input id="movieId" type="number" min="1" placeholder="Movie ID" />
+    <button id="goMovie">Voir film</button>
+</nav>
+
+<header class="page-title">
+    <h1 id="titleText">🏆 Top 10 par score</h1>
+</header>
+
+<div id="container" class="grid"></div>
+<div id="error"></div>
+
+<script>
+    const links     = document.querySelectorAll('nav a[data-route]');
+    const input     = document.getElementById('movieId');
+    const btnGo     = document.getElementById('goMovie');
+    const titleEl   = document.getElementById('titleText');
+    const container = document.getElementById('container');
+    const errorEl   = document.getElementById('error');
+
+    const labels = {
+        '/stats/ten/best/score':  '🏆 Top 10 par score',
+        '/stats/ten/best/views':  '👁️ Top 10 par vues',
+        '/stats/ten/worst/score': '💔 Flop 10 par score',
+        '/stats/ten/worst/views': '📉 Flop 10 par vues',
+    };
+
+    function setActive(route) {
+        links.forEach(a => a.classList.toggle('active', a.dataset.route === route));
+    }
+
+    function renderGrid(list, route) {
+        container.classList.add('grid');
+        container.innerHTML = '';
+        if (!list.length) {
+            container.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#888;">Aucun résultat</p>';
+            return;
+        }
+        list.forEach(m => {
+            const label = route.endsWith('score') ? 'Score' : 'Vues';
+            const val   = route.endsWith('score')
+                ? (typeof m.score==='number' ? m.score.toFixed(2) : m.score)
+                : m.views;
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+          <div class="info">
+            <div class="title">${m.title}</div>
+            <div class="meta">ID: ${m.id} • ${label}: ${val}</div>
+          </div>`;
+            container.appendChild(card);
+        });
+    }
+
+    function renderDetail(m) {
+        container.classList.remove('grid');
+        container.innerHTML = `
+        <div class="detail">
+          <h2>${m.title} (ID: ${m.id})</h2>
+          <p>
+            Vues : ${m.total_view_count ?? '—'}
+          </p>
+          <h3>Stats cumulées</h3>
+          <pre>${JSON.stringify(m.stats.past, null, 2)}</pre>
+          <h3>Stats 5 dernières minutes</h3>
+          <pre>${JSON.stringify(m.stats.last_five_minutes, null, 2)}</pre>
+        </div>`;
+    }
+
+    async function load(route, id = null) {
+        errorEl.textContent = '';
+        setActive(route);
+        titleEl.textContent = id ? `🎬 Détails du film #${id}` : labels[route] || '';
+        try {
+            const url = id ? `/movies/${id}` : route;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+            const text = await res.text();
+            const data = JSON.parse(text);
+
+            if (route === '/movies') {
+                renderDetail(data);
+            } else {
+                renderGrid(Array.isArray(data) ? data : [], route);
+            }
+        } catch (e) {
+            errorEl.textContent = 'Erreur : ' + e.message;
+        }
+    }
+
+    links.forEach(a =>
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            location.hash = a.dataset.route;
+        })
+    );
+
+    btnGo.addEventListener('click', () => {
+        const v = input.value.trim();
+        if (!v) return;
+        location.hash = `/movies/${v}`;
+    });
+
+    function onHashChange() {
+        const h = location.hash.slice(1) || '/stats/ten/best/score';
+        const parts = h.split('/');
+        if (parts[1] === 'movies') {
+            load('/movies', parts[2]);
+        } else {
+            load(h);
+        }
+    }
+    window.addEventListener('hashchange', onHashChange);
+    window.addEventListener('DOMContentLoaded', onHashChange);
+</script>
+</body>
+</html>

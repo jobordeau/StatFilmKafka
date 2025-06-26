@@ -29,7 +29,6 @@ public class MovieController extends AllDirectives {
 
     public Route createRoute() {
         return concat(
-                /* /movies/:id --------------------------------------------------- */
                 pathPrefix("movies", () ->
                         path(integerSegment(), id ->
                                 get(() ->
@@ -42,7 +41,6 @@ public class MovieController extends AllDirectives {
                         )
                 ),
 
-                /* /stats/… ------------------------------------------------------ */
                 pathPrefix("stats", () -> concat(
                         path(TEN_BEST_SCORE,  () -> get(() -> jsonComplete(svc.topByScore(10,  true)))),
                         path(TEN_BEST_VIEWS,  () -> get(() -> jsonComplete(svc.topByViews(10,  true)))),

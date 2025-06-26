@@ -20,10 +20,6 @@ public class MovieService {
         this.streams = streams;
     }
 
-    /* ──────────────────────────────────────────────────────────── */
-    /*  /movies/:id                                                */
-    /* ──────────────────────────────────────────────────────────── */
-
     public Optional<Map<String, Object>> statsForMovie(int id) {
 
         ReadOnlyKeyValueStore<Integer, MovieStats> allTime =
@@ -64,9 +60,6 @@ public class MovieService {
                 )));
     }
 
-    /* ──────────────────────────────────────────────────────────── */
-    /*  /stats/ten/best|worst/score|views                          */
-    /* ──────────────────────────────────────────────────────────── */
 
     public List<Map<String, Object>> topByScore(int limit, boolean best) {
         ReadOnlyKeyValueStore<Integer, MovieStats> scores =
@@ -100,15 +93,11 @@ public class MovieService {
                         "views", s.totalViews));
     }
 
-    /* ──────────────────────────────────────────────────────────── */
-    /*  Helpers                                                    */
-    /* ──────────────────────────────────────────────────────────── */
 
     /** Renvoie un titre non-nul. */
     private String titleOrUnknown(int id, MovieStats stats) {
         if (stats.title != null) return stats.title;
 
-        // Essaie de le récupérer dans le store des vues
         ReadOnlyKeyValueStore<Integer, MovieStats> views =
                 streams.store(StoreQueryParameters.fromNameAndType(
                         StreamProcessing.MOVIE_VIEWS_ALLTIME_STORE,
@@ -129,7 +118,7 @@ public class MovieService {
                 .sorted((kv1, kv2) -> cmp.compare(kv1.value, kv2.value))
                 .limit(limit)
                 .map(kv -> mapper.apply(kv.key, kv.value))
-                .collect(Collectors.toList());      // Compatible Java 11
+                .collect(Collectors.toList());
 
         it.close();
         return res;

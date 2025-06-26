@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>org.esgi.project</groupId>
     <artifactId>kafka-streams-solution</artifactId>
     <version>1.0-SNAPSHOT</version>
+
     <properties>
         <scala.major.version>2.13</scala.major.version>
         <scala.version>${scala.major.version}.16</scala.version>
-        <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
 
         <akka.version>2.10.5</akka.version>
         <akka-http.version>10.7.1</akka-http.version>
@@ -19,10 +21,13 @@
         <play-json.version>2.9.4</play-json.version>
         <scalatest.version>3.2.15</scalatest.version>
 
+        <junit.version>5.10.2</junit.version>
+
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -35,13 +40,11 @@
             <artifactId>akka-stream_${scala.major.version}</artifactId>
             <version>${akka.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http_${scala.major.version}</artifactId>
             <version>${akka-http.version}</version>
         </dependency>
-
         <dependency>
             <groupId>de.heikoseeberger</groupId>
             <artifactId>akka-http-play-json_${scala.major.version}</artifactId>
@@ -49,25 +52,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit_${scala.major.version}</artifactId>
-            <version>${akka.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-http-testkit_${scala.major.version}</artifactId>
-            <version>${akka-http.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
             <version>${typesafe-config.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-json_${scala.major.version}</artifactId>
@@ -79,6 +67,22 @@
             <artifactId>kafka-streams-scala_${scala.major.version}</artifactId>
             <version>4.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.azhur</groupId>
+            <artifactId>kafka-serde-play-json_${scala.major.version}</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -88,35 +92,25 @@
         </dependency>
 
         <dependency>
-            <groupId>io.github.azhur</groupId>
-            <artifactId>kafka-serde-play-json_${scala.major.version}</artifactId>
-            <version>0.9.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.major.version}</artifactId>
             <version>${scalatest.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.esgi.project</groupId>
-            <artifactId>kafka-streams-solution</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>4.0.0</version>
         </dependency>
     </dependencies>
+
     <repositories>
         <repository>
             <id>confluent</id>
@@ -127,6 +121,7 @@
             <url>https://repo.akka.io/maven</url>
         </repository>
     </repositories>
+
     <build>
         <plugins>
             <plugin>
@@ -142,33 +137,32 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <phase>none</phase>
-                    </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest-maven-plugin</artifactId>
                 <version>1.0</version>
                 <configuration>
                     <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                    <junitxml>.</junitxml>
-                    <filereports>WDF TestSuite.txt</filereports>
                 </configuration>
                 <executions>
                     <execution>
@@ -179,10 +173,11 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven-shade-plugin.version}</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -191,12 +186,10 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>reference.conf</resource>
                                 </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.esgi.project.Main</mainClass>
                                 </transformer>
                             </transformers>
