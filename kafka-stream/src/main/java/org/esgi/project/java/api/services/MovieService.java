@@ -1,4 +1,3 @@
-// MovieService.java
 package org.esgi.project.java.api.services;
 
 import org.apache.kafka.streams.*;
@@ -18,7 +17,6 @@ public class MovieService {
 
     public MovieService(KafkaStreams streams) { this.streams = streams; }
 
-    /* ---------- /movies/:id ---------- */
     public Optional<Map<String,Object>> statsForMovie(int id){
         ReadOnlyKeyValueStore<Integer,MovieStats> allTime =
                 streams.store(StoreQueryParameters.fromNameAndType(
@@ -28,7 +26,6 @@ public class MovieService {
         MovieStats past = allTime.get(id);
         if(past==null) return Optional.empty();
 
-        // fenêtre glissante 5 min
         ReadOnlyWindowStore<Integer,MovieStats> last5Store =
                 streams.store(StoreQueryParameters.fromNameAndType(
                         StreamProcessing.MOVIE_VIEWS_5MIN_STORE,
@@ -41,8 +38,8 @@ public class MovieService {
                      last5Store.fetch(id, from, now)) {
 
             while (it.hasNext()) {
-                KeyValue<Long, MovieStats> kv = it.next(); // clé = timestamp
-                last5.merge(kv.value);                     // on cumule les stats
+                KeyValue<Long, MovieStats> kv = it.next();
+                last5.merge(kv.value);
             }
         }
 
@@ -64,7 +61,6 @@ public class MovieService {
         return Optional.of(json);
     }
 
-    /* ---------- top / flop ---------- */
     public List<Map<String,Object>> topByScore(int limit, boolean best){
         ReadOnlyKeyValueStore<Integer,MovieStats> scores =
                 streams.store(StoreQueryParameters.fromNameAndType(
@@ -91,23 +87,21 @@ public class MovieService {
                 (id, s) -> Map.of("id", id, "title", s.title, "views", s.totalViews));
     }
 
-    /* ------ utilitaires ------ */
     private <V> List<Map<String,Object>> toList(KeyValueIterator<Integer,V> it,
                                                 Comparator<V> cmp,
                                                 int limit,
                                                 BiFunction<Integer,V,Map<String,Object>> mapper) {
 
-        Iterable<KeyValue<Integer,V>> iterable = () -> it;   // transforme l’iterator en iterable
+        Iterable<KeyValue<Integer,V>> iterable = () -> it;
 
         List<Map<String,Object>> res = StreamSupport
                 .stream(iterable.spliterator(), false)
-                // comparaison personnalisée sur la partie value du KeyValue
                 .sorted((kv1, kv2) -> cmp.compare(kv1.value, kv2.value))
                 .limit(limit)
                 .map(kv -> mapper.apply(kv.key, kv.value))
                 .collect(Collectors.toList());
 
-        it.close();     // on ferme l’iterator pour libérer les ressources
+        it.close();
         return res;
     }
 

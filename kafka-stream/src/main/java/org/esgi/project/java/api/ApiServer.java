@@ -8,7 +8,6 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.esgi.project.java.api.controllers.MovieController;
 import org.esgi.project.java.api.services.MovieService;
 
-// ApiServer.java
 public class ApiServer {
     private final KafkaStreams streams;
     public ApiServer(KafkaStreams streams){ this.streams = streams; }

@@ -1,4 +1,3 @@
-// MovieController.java
 package org.esgi.project.java.api.controllers;
 
 import akka.http.javadsl.server.*;
@@ -20,7 +19,6 @@ public class MovieController extends AllDirectives {
 
     public Route createRoute() {
         return concat(
-                /* ---------- /movies/:id ---------- */
                 pathPrefix("movies", () ->
                         path(integerSegment(), id ->
                                 get(() ->
