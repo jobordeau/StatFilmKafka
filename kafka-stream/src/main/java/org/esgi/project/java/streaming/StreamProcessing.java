@@ -46,14 +46,14 @@ public class StreamProcessing {
         KStream<Integer, Like>  likesStream =
                 likesRaw.selectKey((rawKey, like) -> like.id);
 
-        //agrégat ALL-TIME (compteur + distribution)
+        //agrégat ALL-TIME
         viewsStream
                 .groupByKey(Grouped.with(Serdes.Integer(), viewEventSerde))
                 .aggregate(
                         MovieStats::new,
-                        (id, view, agg) -> agg.incrementViews(view),          // total + histo
+                        (id, view, agg) -> agg.incrementViews(view),
                         Materialized.<Integer, MovieStats, KeyValueStore<Bytes, byte[]>>
-                                        as(MOVIE_VIEWS_ALLTIME_STORE)                   // <-- ici
+                                        as(MOVIE_VIEWS_ALLTIME_STORE)
                                 .withKeySerde(Serdes.Integer())
                                 .withValueSerde(movieStatsSerde)
                 );
