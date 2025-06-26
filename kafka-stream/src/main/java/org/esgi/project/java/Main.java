@@ -18,7 +18,7 @@ public class Main {
 
         streams.start();
 
-        ApiServer apiServer = new ApiServer();
+        ApiServer apiServer = new ApiServer(streams);
         apiServer.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));

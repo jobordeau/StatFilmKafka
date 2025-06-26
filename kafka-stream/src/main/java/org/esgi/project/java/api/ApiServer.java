@@ -4,17 +4,23 @@ import akka.actor.ActorSystem;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.server.Route;
 import akka.http.javadsl.server.AllDirectives;
+import org.apache.kafka.streams.KafkaStreams;
 import org.esgi.project.java.api.controllers.MovieController;
+import org.esgi.project.java.api.services.MovieService;
 
-public class ApiServer extends AllDirectives {
+// ApiServer.java
+public class ApiServer {
+    private final KafkaStreams streams;
+    public ApiServer(KafkaStreams streams){ this.streams = streams; }
 
-    public void start() {
+    public void start(){
         ActorSystem system = ActorSystem.create("routes");
-        final Http http = Http.get(system);
+        Http http = Http.get(system);
 
-        MovieController movieController = new MovieController();
+        MovieService service = new MovieService(streams);
+        MovieController ctrl = new MovieController(service);
 
-        Route routes = movieController.createRoute();
-        http.newServerAt("localhost", 8080).bind(routes);
+        http.newServerAt("0.0.0.0", 8080).bind(ctrl.createRoute());
     }
 }
+

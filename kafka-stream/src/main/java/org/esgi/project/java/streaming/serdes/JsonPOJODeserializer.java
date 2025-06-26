@@ -7,7 +7,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 
 import java.util.Map;
 
-/** Désérialise un JSON (byte[]) vers l’objet Java cible. */
+
 public class JsonPOJODeserializer<T> implements Deserializer<T> {
 
     private static final ObjectMapper MAPPER = new ObjectMapper()

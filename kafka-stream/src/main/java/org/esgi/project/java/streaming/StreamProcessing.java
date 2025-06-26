@@ -23,6 +23,7 @@ public class StreamProcessing {
 
     public static final String MOVIE_VIEWS_5MIN_STORE = "movie-views-5min-store";
     public static final String MOVIE_SCORES_STORE     = "movie-scores-store";
+    public static final String MOVIE_VIEWS_ALLTIME_STORE = "movie-views-alltime-store";
 
     private final StreamsBuilder builder = new StreamsBuilder();
 
@@ -45,6 +46,17 @@ public class StreamProcessing {
         KStream<Integer, Like>  likesStream =
                 likesRaw.selectKey((rawKey, like) -> like.id);
 
+        //agrégat ALL-TIME (compteur + distribution)
+        viewsStream
+                .groupByKey(Grouped.with(Serdes.Integer(), viewEventSerde))
+                .aggregate(
+                        MovieStats::new,
+                        (id, view, agg) -> agg.incrementViews(view),          // total + histo
+                        Materialized.<Integer, MovieStats, KeyValueStore<Bytes, byte[]>>
+                                        as(MOVIE_VIEWS_ALLTIME_STORE)                   // <-- ici
+                                .withKeySerde(Serdes.Integer())
+                                .withValueSerde(movieStatsSerde)
+                );
 
         //Agrégation 1 : nombre de vues par film (fenêtre 5 min)
 
