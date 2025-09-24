@@ -1,6 +1,7 @@
 # Kafka as a Datahub - Skeleton
 
 #Contexte 
+
 Vous êtes arrivé dans la société KazaaMovies, spécialisée dans le streaming de
 films à destination des particuliers.
 Ils viennent de mettre en place après plusieurs années de développement une
